@@ -1,0 +1,37 @@
+version: '2'
+services:
+    mysql:
+        container_name: stud_mysql
+        build: ./mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=stud
+            - MYSQL_DATABASE=stud
+            - MYSQL_USER=stud
+            - MYSQL_PASSWORD=stud
+        volumes:
+            - ../db:/app
+            - ./mysql/data:/var/lib/mysql
+            - ./mysql/stud.cnf:/etc/mysql/conf.d/stud.cnf
+        working_dir: /app
+
+    apache:
+        container_name: stud_apache
+        image: bylexus/apache-php7
+        volumes:
+            - ../app/api:/var/www
+            - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
+        working_dir: /var/www
+        ports:
+            - 81:80
+        restart: always
+
+    node:
+        container_name: stud_node
+        image: node:latest
+        volumes:
+            - ../app/front:/app
+        working_dir: /app
+        ports:
+            - 82:8080
+        restart: always
+        command: sh -c "npm i -q && npm run dev"
